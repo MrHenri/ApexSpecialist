@@ -7,18 +7,27 @@ public class MaintenanceRequestHelperTest {
         insert vehicle;
 
         Case case1 = MaintenanceRequestDataFactory.createCase(Constants.TYPE_REPAIR, vehicle.Id);
-        Case case2 = MaintenanceRequestDataFactory.createCase(Constants.TYPE_ROUTINE_MAINTENANCE, vehicle.Id);
-        Case case3 = MaintenanceRequestDataFactory.createCase(Constants.TYPE_OTHER, vehicle.Id);
-        insert new List<Case>{case1,case2,case3};
+        Case case2 = MaintenanceRequestDataFactory.createCase(Constants.TYPE_OTHER, vehicle.Id);
+        insert new List<Case>{case1,case2};
 
-        Product2 equipment1 = MaintenanceRequestDataFactory.createEquipment('Equipment1', 100, 100);
-        Product2 equipment2 = MaintenanceRequestDataFactory.createEquipment('Equipment2', 35, 35);
-        Product2 equipment3 = MaintenanceRequestDataFactory.createEquipment('Equipment3', 75, 75);
-        insert new List<Product2>{equipment1,equipment2,equipment3};
+        List<Product2> equipments = MaintenanceRequestDataFactory.createMultipleEquipments(3);
+        insert equipments;
+    }
 
-        Equipment_Maintenance_Item__c equipmentMaintenance1 = MaintenanceRequestDataFactory.createEquipmentMaintenanceItem(case1, equipment1);
-        Equipment_Maintenance_Item__c equipmentMaintenance2 = MaintenanceRequestDataFactory.createEquipmentMaintenanceItem(case1, equipment2);
-        Equipment_Maintenance_Item__c equipmentMaintenance3 = MaintenanceRequestDataFactory.createEquipmentMaintenanceItem(case2, equipment3);
-        insert new List<Equipment_Maintenance_Item__c>{equipmentMaintenance1,equipmentMaintenance2,equipmentMaintenance3};
+    @isTest
+    static void maintenanceRequestTriggerTest(){
+        Case caseTest = [SELECT Id, Type, Status, Vehicle__c FROM Case Where Type = :Constants.TYPE_REPAIR LIMIT 1];
+        List<Product2> equipments = [SELECT Id, Name, Cost__c, Maintenance_Cycle__c FROM Product2 LIMIT 3];
+
+        List<Equipment_Maintenance_Item__c> equipmentsMaintenanceItems = MaintenanceRequestDataFactory.createMultipleEquipmentMaintenanceItem(caseTest.Id, equipments);
+        insert equipmentsMaintenanceItems;
+
+        Test.startTest();
+        caseTest.Status = Constants.STATUS_CLOSED;
+        Database.SaveResult result = Database.update(caseTest, false);
+        Test.stopTest();
+
+        System.assert(result.isSuccess(), 'Check if DML operation ocurred successfully');
+        System.assert(result.getErrors().size() < 1, 'Check if the operation has no errors');
     }
 }

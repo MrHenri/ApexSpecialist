@@ -15,13 +15,14 @@ public with sharing class ChallengeHelper {
                 updatedCases.put(caseId, c);
             }
         }
-        System.debug(updatedCases);
         return updatedCases;
     }
 
     public static Map<Id,List<Equipment_Maintenance_Item__c>> getEquipmentMaintenanceItems(Set<Id> casesId){
         Map<Id,List<Equipment_Maintenance_Item__c>> equipmentMaintenanceItems = new Map<Id,List<Equipment_Maintenance_Item__c>>();
-        for(Equipment_Maintenance_Item__c equipment : [SELECT Id, Equipment__c, Equipment__r.Maintenance_Cycle__c, Maintenance_Request__c, Quantity__c FROM Equipment_Maintenance_Item__c WHERE Maintenance_Request__c IN :casesId]){
+        for (Equipment_Maintenance_Item__c equipment : [SELECT Id, Equipment__c, Equipment__r.Maintenance_Cycle__c, Maintenance_Request__c, Quantity__c
+                                                        FROM Equipment_Maintenance_Item__c
+                                                        WHERE Maintenance_Request__c IN :casesId WITH SECURITY_ENFORCED]){
             Id caseKey = equipment.Maintenance_Request__c;
             if(equipmentMaintenanceItems.containsKey(caseKey)){
                 equipmentMaintenanceItems.get(caseKey).add(equipment);
@@ -30,17 +31,6 @@ public with sharing class ChallengeHelper {
             }
         }
         return equipmentMaintenanceItems;
-    }
-
-    public static Case createCase(Case parentCase){
-        Case newCase = parentCase.clone();
-        newCase.ParentId = parentCase.Id;
-        newCase.Parent = parentCase;
-        newCase.Type = Constants.TYPE_ROUTINE_MAINTENANCE;
-        newCase.Status = Constants.STATUS_NEW;
-        newCase.Subject = 'New Maintenance was scheduled';
-        newCase.Date_Reported__c = Date.today();
-        return newCase;
     }
 
     public static Date calculateDueDate(List<Equipment_Maintenance_Item__c> equipmentMaintenanceItems){

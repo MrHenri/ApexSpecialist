@@ -20,7 +20,7 @@ public with sharing class MaintenanceRequestHelper {
     public void getNewMaintenanceRequest(Map<Id,Case> updatedCases, Map<Id,Case> oldCases){
         equipmentMaintenanceItems = ChallengeHelper.getEquipmentMaintenanceItems(updatedCases.keySet());
         for(Case c : updatedCases.values()){
-            Case newCase = ChallengeHelper.createCase(c);
+            Case newCase = MaintenanceRequestDataFactory.cloneParentCase(c);
             newCase.Date_Due__c = ChallengeHelper.calculateDueDate(equipmentMaintenanceItems.get(c.Id));
             newCases.add(newCase);
         }
