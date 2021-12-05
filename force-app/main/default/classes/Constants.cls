@@ -14,4 +14,7 @@ public with sharing class Constants {
 
     //Endpoint
     public static final String WAREHOUSE_URL = 'https://th-superbadge-apex.herokuapp.com/equipment';
+
+    //Schedule Job
+    public static final String WAREHOUSE_SYNC_SCHEDULE = '0 0 1 * * ?';
 }
