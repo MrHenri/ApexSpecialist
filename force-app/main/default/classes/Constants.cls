@@ -11,4 +11,7 @@ public with sharing class Constants {
 
     //Case Origin
     public final static String ORIGIN_WEB = 'Web';
+
+    //Endpoint
+    public static final String WAREHOUSE_URL = 'https://th-superbadge-apex.herokuapp.com/equipment';
 }

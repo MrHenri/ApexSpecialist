@@ -44,11 +44,33 @@ public with sharing class ChallengeHelper {
     }
 
     public static void insertNewCases(List<Case> newCases){
-        if(newCases != null && !newCases.isEmpty()){insert newCases;}
+        if(newCases != null && !newCases.isEmpty()){
+            try {
+                insert newCases;
+            } catch (DmlException e) {
+                System.debug('Error has occurred while the new Cases were being inserting:\n###' + e.getMessage());
+            }
+        }
     }
 
     public static void insertNewEquipmentMaintenanceItems(List<Equipment_Maintenance_Item__c> newEquipmentsMaintenanceItems){
-        if(newEquipmentsMaintenanceItems != null && !newEquipmentsMaintenanceItems.isEmpty()){insert newEquipmentsMaintenanceItems;}
+        if(newEquipmentsMaintenanceItems != null && !newEquipmentsMaintenanceItems.isEmpty()){
+            try {
+                insert newEquipmentsMaintenanceItems;
+            } catch (DmlException e) {
+                System.debug('Error has occurred while the new EquipmentsMaintenanceItems were being inserting:\n###' + e.getMessage());
+            }
+        }
+    }
+
+    public static void upsertExternalEquipments(List<Product2> externalEquipments){
+        if(externalEquipments != null && !externalEquipments.isEmpty()){
+            try {
+                upsert externalEquipments Warehouse_SKU__c;
+            } catch (DmlException e) {
+                System.debug('Error has occurred while the external equipments were being inserting:\n###' + e.getMessage());
+            }
+        }
     }
 
     public static List<Equipment_Maintenance_Item__c> getNewEquipmentMaintenanceItems(List<Equipment_Maintenance_Item__c> equipmentMaintenanceItems, Case newCase){
@@ -59,5 +81,16 @@ public with sharing class ChallengeHelper {
             newEquipmentsMaintenanceItems.add(newEquipment);
         }
         return newEquipmentsMaintenanceItems;
+    }
+
+    public static List<Product2> factoryEquipments(List<Object> equipmentsObject){
+        List<Product2> equipments = new List<Product2>();
+        for(Object obj : equipmentsObject){
+            Map<String, Object> keyValuesObject = (Map<String,Object>) obj;
+            if ((Boolean) keyValuesObject.get('replacement') == true){
+                equipments.add(MaintenanceRequestDataFactory.createEquipmentByExternalObject(keyValuesObject));
+            }
+        }
+        return equipments;
     }
 }

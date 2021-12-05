@@ -43,4 +43,16 @@ public class MaintenanceRequestDataFactory {
         }
         return equipmentsMaintenanceItems;
     }
+
+    public static Product2 createEquipmentByExternalObject(Map<String,Object> externalObject){
+        Product2 equipment = new Product2();
+        equipment.Replacement_Part__c = (Boolean) externalObject.get('replacement');
+        equipment.Current_Inventory__c = (Double) externalObject.get('quantity');
+        equipment.Name = (String) externalObject.get('name');
+        equipment.Maintenance_Cycle__c = (Double) externalObject.get('maintenanceperiod');
+        equipment.Lifespan_Months__c = (Double) externalObject.get('lifespan');
+        equipment.Cost__c = (Double) externalObject.get('cost');
+        equipment.Warehouse_SKU__c = (String) externalObject.get('sku');
+        return equipment;
+    }
 }
